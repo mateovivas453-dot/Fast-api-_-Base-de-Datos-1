@@ -6,13 +6,11 @@ from sqlmodel import SQLModel, Field, create_engine, Session, select
 from contextlib import asynccontextmanager
 
 # --- CARGAR VARIABLES DE ENTORNO ---
-# Esto leerá tu archivo .env para proteger tus credenciales de AWS
 load_dotenv()
 
 # --- CONFIGURACIÓN DE BASE DE DATOS ---
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Validación por si el archivo .env no existe o está mal configurado
 if not DATABASE_URL:
     raise ValueError("¡Error! La variable DATABASE_URL no está configurada. Asegúrate de crear el archivo .env")
 
@@ -62,7 +60,6 @@ class UsuarioUpdate(SQLModel):
 # --- INICIALIZACIÓN DE APP ---
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Crear las tablas en tu base de datos de PostgreSQL al iniciar
     SQLModel.metadata.create_all(engine)
     yield
 
@@ -84,12 +81,12 @@ def crear_libro(libro: LibroCreate, session: Session = Depends(get_session)):
     return db_libro
 
 @app.get("/libros/", response_model=List[Libro])
-def leer_libros(session: Session = Depends(get_session)):
+def listar_libros(session: Session = Depends(get_session)):
     libros = session.exec(select(Libro)).all()
     return libros
 
 @app.get("/libros/{libro_id}", response_model=Libro)
-def leer_libro(libro_id: int, session: Session = Depends(get_session)):
+def listar_libro(libro_id: int, session: Session = Depends(get_session)):
     libro = session.get(Libro, libro_id)
     if not libro:
         raise HTTPException(status_code=404, detail="Libro no encontrado")
@@ -130,12 +127,12 @@ def crear_usuario(usuario: UsuarioCreate, session: Session = Depends(get_session
     return db_usuario
 
 @app.get("/usuarios/", response_model=List[Usuario])
-def leer_usuarios(session: Session = Depends(get_session)):
+def listar_usuarios(session: Session = Depends(get_session)):
     usuarios = session.exec(select(Usuario)).all()
     return usuarios
 
 @app.get("/usuarios/{usuario_id}", response_model=Usuario)
-def leer_usuario(usuario_id: int, session: Session = Depends(get_session)):
+def listar_usuario(usuario_id: int, session: Session = Depends(get_session)):
     usuario = session.get(Usuario, usuario_id)
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
