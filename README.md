@@ -6,7 +6,7 @@ Este proyecto implementa una API RESTful para gestionar libros y usuarios, utili
 
 1. Clonar el repositorio:
    ```bash
-   git clone <URL_DEL_REPOSITORIO>
+   git clone <https://github.com/mateovivas453-dot/Fast-api-_-Base-de-Datos-1.git>
    cd Fastapi_BaseDeDatos
    ```
 
