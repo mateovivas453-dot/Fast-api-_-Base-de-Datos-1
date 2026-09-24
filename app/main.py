@@ -1,12 +1,20 @@
 import os
+from dotenv import load_dotenv
 from typing import List, Optional
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import SQLModel, Field, create_engine, Session, select
+from contextlib import asynccontextmanager
+
+# --- CARGAR VARIABLES DE ENTORNO ---
+# Esto leerá tu archivo .env para proteger tus credenciales de AWS
+load_dotenv()
 
 # --- CONFIGURACIÓN DE BASE DE DATOS ---
-# Se utilizan variables de entorno para evitar exponer credenciales
-# Formato esperado: postgresql://user:password@host:port/dbname
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/fastapi_db")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Validación por si el archivo .env no existe o está mal configurado
+if not DATABASE_URL:
+    raise ValueError("¡Error! La variable DATABASE_URL no está configurada. Asegúrate de crear el archivo .env")
 
 engine = create_engine(DATABASE_URL, echo=True)
 
@@ -51,12 +59,10 @@ class UsuarioUpdate(SQLModel):
     email: Optional[str] = None
     edad: Optional[int] = None
 
-from contextlib import asynccontextmanager
-
 # --- INICIALIZACIÓN DE APP ---
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Crear las tablas al iniciar
+    # Crear las tablas en tu base de datos de PostgreSQL al iniciar
     SQLModel.metadata.create_all(engine)
     yield
 
